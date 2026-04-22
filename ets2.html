@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kesehatan Masyarakat - Jawa Timur | Portal Data</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-teal: #008489;
+            --dark-teal: #006a6e;
+            --accent-orange: #f39200;
+            --bg-light: #f4f7f6;
+            --text-dark: #333333;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Open Sans', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- NAVBAR --- */
+        .navbar { background: var(--white); padding: 10px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Montserrat'; font-weight: 700; color: var(--primary-teal); text-decoration: none; font-size: 1.5rem; }
+        .logo span { color: var(--accent-orange); }
+        .nav-links { display: flex; list-style: none; gap: 25px; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+        .nav-links a:hover { color: var(--primary-teal); }
+        .search-nav input { padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; width: 200px; outline: none; }
+
+        /* --- HERO --- */
+        .hero { 
+            background: linear-gradient(rgba(0,132,137,0.85), rgba(0,106,110,0.85)), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1350&q=80');
+            background-size: cover; background-position: center; color: white; padding: 100px 0;
+        }
+        .hero-text h1 { font-family: 'Montserrat'; font-size: 2.8rem; margin-bottom: 20px; line-height: 1.2; }
+        .hero-text p { font-size: 1.1rem; max-width: 650px; margin-bottom: 30px; opacity: 0.9; }
+        .btn-primary { background: var(--accent-orange); color: white; padding: 14px 30px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block; transition: 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); background: #d68100; }
+
+        /* --- TENTANG DATA --- */
+        .section-title { text-align: center; margin: 60px 0 40px; }
+        .underline { width: 60px; height: 4px; background: var(--accent-orange); margin: 10px auto; }
+        .about-section { background: var(--white); padding: 50px 0; border-radius: 15px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: center; margin-bottom: 50px; }
+        .about-text h3 { color: var(--primary-teal); font-family: 'Montserrat'; margin-bottom: 15px; }
+
+        /* --- CARD GRID --- */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 60px; }
+        .health-card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: 0.3s; border: 1px solid #eee; display: flex; flex-direction: column; }
+        .health-card:hover { transform: translateY(-5px); }
+        .card-image { height: 160px; background-size: cover; background-position: center; }
+        .card-body { padding: 25px; flex-grow: 1; }
+        .category { color: var(--accent-orange); font-weight: bold; font-size: 0.7rem; text-transform: uppercase; }
+        .health-card h3 { color: var(--dark-teal); font-family: 'Montserrat'; margin: 10px 0; cursor: pointer; }
+        .health-card h3:hover { color: var(--primary-teal); }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-chart { background: var(--primary-teal); color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; flex: 1; font-weight: 700; transition: 0.3s; }
+        .btn-chart:hover { background: var(--dark-teal); }
+        .btn-more { background: white; border: 2px solid var(--primary-teal); color: var(--primary-teal); padding: 12px; border-radius: 5px; cursor: pointer; flex: 1; font-weight: 700; }
+        .btn-more:hover { background: var(--primary-teal); color: white; }
+
+        /* --- TABLE AREA --- */
+        .table-container { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; background: #fafafa; border-top: 1px solid #eee; }
+        .table-container.open { max-height: 400px; overflow-y: auto; padding: 20px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        table th { text-align: left; background: #f0f4f4; padding: 10px; color: var(--dark-teal); position: sticky; top: 0; }
+        table td { padding: 10px; border-bottom: 1px solid #eee; }
+
+        /* --- MODAL --- */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 90%; max-width: 850px; padding: 40px; border-radius: 15px; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 25px; font-size: 2.5rem; cursor: pointer; color: #888; }
+        .chart-wrapper { height: 450px; width: 100%; margin-top: 20px; }
+
+        footer { background: #1a1a1a; color: #bbb; text-align: center; padding: 40px 0; margin-top: 50px; font-size: 0.85rem; }
+
+        @media (max-width: 768px) { .about-section { grid-template-columns: 1fr; } .nav-links, .search-nav { display: none; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo">KESEHATAN<span>JATIM</span></a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#tentang">Tentang Data</a></li>
+                <li><a href="#data-section">Statistik</a></li>
+            </ul>
+            <div class="search-nav">
+                <input type="text" id="searchInput" placeholder="Cari penyakit...">
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero" id="home">
+        <div class="container">
+            <div class="hero-text">
+                <h1>Statistik Kesehatan & <br>Penyakit Jawa Timur 2025</h1>
+                <p>Menyediakan akses data transparan mengenai sebaran penyakit di wilayah Jawa Timur untuk mendukung kebijakan berbasis data.</p>
+                <a href="#data-section" class="btn-primary">Mulai Eksplorasi Data</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="container" id="tentang">
+        <div class="section-title">
+            <h2>Tentang Portal Data</h2>
+            <div class="underline"></div>
+        </div>
+        <div class="about-section">
+            <img src="bps jatim.jpg" alt="BPS Jawa Timur" style="width: 80%; display: block; margin: 0 auto; border-radius: 10px;">
+            <div class="about-text">
+                <h3>Metodologi & Sumber Data</h3>
+                <p>Seluruh data yang ada di sini diambil dari laporan resmi <strong>BPS (Badan Pusat Statistik) Provinsi Jawa Timur</strong> tahun 2025.</p>
+                <br>
+                <p>Kami membuat situs ini agar data penyebaran penyakit di Jawa Timur lebih mudah dibaca dan dipahami oleh siapa saja, mulai dari mahasiswa hingga warga biasa secara jujur dan terbuka.</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="container" id="data-section">
+        <div class="section-title">
+            <h2>Laporan Per Jenis Penyakit</h2>
+            <div class="underline"></div>
+        </div>
+
+        <div class="card-grid">
+            <div class="health-card">
+                <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=500&q=60');"></div>
+                <div class="card-body">
+                    <span class="category">Penyakit Menular</span>
+                    <h3 onclick="openChart('tbc')">Tuberkulosis (TBC)</h3>
+                    <p>Pemantauan intensif kasus TBC di faskes Jawa Timur (Angka Penemuan).</p>
+                    <div class="btn-group">
+                        <button class="btn-chart" onclick="openChart('tbc')">Lihat Grafik</button>
+                        <button class="btn-more" onclick="toggleTable('table-tbc')">Tampil Lebih Lanjut</button>
+                    </div>
+                </div>
+                <div id="table-tbc" class="table-container">
+                    <table><thead><tr><th>Kabupaten/Kota</th><th>Angka</th></tr></thead><tbody id="body-tbc"></tbody></table>
+                </div>
+            </div>
+            
+            <div class="health-card">
+                <div class="card-image" style="background-image: url('gambar hiv.jpg');"></div>
+                <div class="card-body">
+                    <span class="category">Penyakit Menular</span>
+                    <h3 onclick="openChart('hiv')">HIV/AIDS</h3>
+                    <p>Jumlah penemuan kasus baru HIV/AIDS di Kabupaten/Kota.</p>
+                    <div class="btn-group">
+                        <button class="btn-chart" onclick="openChart('hiv')">Lihat Grafik</button>
+                        <button class="btn-more" onclick="toggleTable('table-hiv')">Tampil Lebih Lanjut</button>
+                    </div>
+                </div>
+                <div id="table-hiv" class="table-container">
+                    <table><thead><tr><th>Kabupaten/Kota</th><th>Kasus</th></tr></thead><tbody id="body-hiv"></tbody></table>
+                </div>
+            </div>
+
+            <div class="health-card">
+                <div class="card-image" style="background-image: url('gambat kusta.jpg');"></div>
+                <div class="card-body">
+                    <span class="category">Penyakit Menular</span>
+                    <h3 onclick="openChart('kusta')">Kusta</h3>
+                    <p>Data kasus baru kusta per 100.000 penduduk.</p>
+                    <div class="btn-group">
+                        <button class="btn-chart" onclick="openChart('kusta')">Lihat Grafik</button>
+                        <button class="btn-more" onclick="toggleTable('table-kusta')">Tampil Lebih Lanjut</button>
+                    </div>
+                </div>
+                <div id="table-kusta" class="table-container">
+                    <table><thead><tr><th>Kabupaten/Kota</th><th>Angka</th></tr></thead><tbody id="body-kusta"></tbody></table>
+                </div>
+            </div>
+
+            <div class="health-card">
+                <div class="card-image" style="background-image: url('gambar malaria.jpg');"></div>
+                <div class="card-body">
+                    <span class="category">Penyakit Menular</span>
+                    <h3 onclick="openChart('malaria')">Malaria</h3>
+                    <p>Angka kesakitan Malaria per 1.000 penduduk.</p>
+                    <div class="btn-group">
+                        <button class="btn-chart" onclick="openChart('malaria')">Lihat Grafik</button>
+                        <button class="btn-more" onclick="toggleTable('table-malaria')">Tampil Lebih Lanjut</button>
+                    </div>
+                </div>
+                <div id="table-malaria" class="table-container">
+                    <table><thead><tr><th>Kabupaten/Kota</th><th>Angka</th></tr></thead><tbody id="body-malaria"></tbody></table>
+                </div>
+            </div>
+
+            <div class="health-card">
+                <div class="card-image" style="background-image: url('gambar dbd.jpg');"></div>
+                <div class="card-body">
+                    <span class="category">Penyakit Menular</span>
+                    <h3 onclick="openChart('dbd')">DBD</h3>
+                    <p>Angka kesakitan DBD per 100.000 penduduk.</p>
+                    <div class="btn-group">
+                        <button class="btn-chart" onclick="openChart('dbd')">Lihat Grafik</button>
+                        <button class="btn-more" onclick="toggleTable('table-dbd')">Tampil Lebih Lanjut</button>
+                    </div>
+                </div>
+                <div id="table-dbd" class="table-container">
+                    <table><thead><tr><th>Kabupaten/Kota</th><th>Angka</th></tr></thead><tbody id="body-dbd"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="font-family: Montserrat; color: var(--dark-teal);">Grafik Penyakit</h2>
+            <p style="font-size: 0.9rem; color: #777;">Sumber Data: BPS Jawa Timur (Top 10 Wilayah Tertinggi)</p>
+            <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Portal Statistik Kesehatan Jawa Timur. Terinspirasi oleh Penabulu Foundation & Data BPS Jatim.</p>
+    </footer>
+
+    <script>
+        const rawData = [
+            {"kota": "Pacitan", "tbc": 62.8, "hiv": 12.0, "kusta": 0.68, "malaria": 0.02, "dbd": 79.9}, {"kota": "Ponorogo", "tbc": 54.1, "hiv": 88.0, "kusta": 2.39, "malaria": 0.01, "dbd": 40.4}, {"kota": "Trenggalek", "tbc": 73.1, "hiv": 32.0, "kusta": 1.34, "malaria": 0.09, "dbd": 71.3}, {"kota": "Tulungagung", "tbc": 59.4, "hiv": 136.0, "kusta": 0.99, "malaria": 0.01, "dbd": 39.4}, {"kota": "Blitar", "tbc": 60.4, "hiv": 52.0, "kusta": 0.79, "malaria": 0, "dbd": 85.5}, {"kota": "Kediri", "tbc": 74.8, "hiv": 73.0, "kusta": 1.12, "malaria": 0.01, "dbd": 17.0}, {"kota": "Malang", "tbc": 69.5, "hiv": 140.0, "kusta": 1.39, "malaria": 0.02, "dbd": 46.3}, {"kota": "Lumajang", "tbc": 87.7, "hiv": 154.0, "kusta": 9.86, "malaria": 0.01, "dbd": 31.8}, {"kota": "Jember", "tbc": 88.7, "hiv": 174.0, "kusta": 5.61, "malaria": 0.01, "dbd": 25.7}, {"kota": "Banyuwangi", "tbc": 70.6, "hiv": 114.0, "kusta": 1.54, "malaria": 0.01, "dbd": 7.9}, {"kota": "Sidoarjo", "tbc": 106.7, "hiv": 248.0, "kusta": 1.66, "malaria": 0.01, "dbd": 19.1}, {"kota": "Kota Kediri", "tbc": 117.7, "hiv": 35.0, "kusta": 0, "malaria": 0.04, "dbd": 52.3}, {"kota": "Kota Surabaya", "tbc": 68.4, "hiv": 281.0, "kusta": 1.33, "malaria": 0.04, "dbd": 7.6}, {"kota": "Kota Malang", "tbc": 83.9, "hiv": 115.0, "kusta": 1.6, "malaria": 0.14, "dbd": 86.6}
+        ];
+
+        let activeChart = null;
+
+        function initTables() {
+            ['tbc', 'hiv', 'kusta', 'malaria', 'dbd'].forEach(key => {
+                const tbody = document.getElementById('body-' + key);
+                rawData.forEach(d => {
+                    tbody.innerHTML += `<tr><td>${d.kota}</td><td>${d[key]}</td></tr>`;
+                });
+            });
+        }
+
+        function toggleTable(id) { document.getElementById(id).classList.toggle('open'); }
+
+        function openChart(type) {
+            const modal = document.getElementById('chartModal');
+            const titles = {tbc:'Tuberkulosis', hiv:'HIV/AIDS', kusta:'Kusta', malaria:'Malaria', dbd:'DBD'};
+            document.getElementById('modalTitle').innerText = 'Grafik ' + titles[type];
+            modal.style.display = 'flex';
+
+            const sorted = [...rawData].sort((a,b) => b[type] - a[type]).slice(0, 10);
+            if (activeChart) activeChart.destroy();
+            activeChart = new Chart(document.getElementById('mainChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: sorted.map(d => d.kota), datasets: [{ label: 'Nilai', data: sorted.map(d => d[type]), backgroundColor: '#008489', borderRadius: 5 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function closeModal() { document.getElementById('chartModal').style.display = 'none'; }
+        window.onclick = function(e) { if (e.target == document.getElementById('chartModal')) closeModal(); }
+        initTables();
+    </script>
+</body>
+</html>
